@@ -79,9 +79,13 @@ jobs:
 
 ✅ Publica a imagem Docker em ghcr.io/gabriellyzup/container
 
+Link do GHCR:
+https://ghcr.io/gabriellyzup/container
+
 2.3 Como usar a imagem publicada?
 bash
 Copy
+
 podman run --rm -p 8080:8080 ghcr.io/gabriellyzup/container:latest
 Fluxo de Desenvolvimento Recomendado
 Desenvolva localmente
