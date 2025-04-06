@@ -1,7 +1,13 @@
-package com.studies;
+package com.study.container;
 
-public class Main {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ContainerApplication {
+
 	public static void main(String[] args) {
-		System.out.println("Hello, World! from Container Tools! \uD83D\uDC33");
+		SpringApplication.run(ContainerApplication.class, args);
 	}
+
 }
