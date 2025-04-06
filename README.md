@@ -66,12 +66,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/gabriellyzup/container:latest
+          tags: ghcr.io/${{ toLower(github.repository_owner) }}/container:latest
 2.2 O que esse pipeline faz?
 ✅ Roda automaticamente ao fazer push no main
 
