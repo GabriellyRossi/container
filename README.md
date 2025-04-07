@@ -36,43 +36,57 @@ http://localhost:8080/hello
 2. CI/CD Pipeline com GitHub Actions 🚀
 2.1 Estrutura do workflow (.github/workflows/main.yml)
 yaml
+
+
 Copy
 name: Build and Push Docker Image
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
     steps:
+      # Passo 1: Baixa o código do repositório
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Passo 2: Configura o JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # Passo 3: Compila o projeto com Maven
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Login to GitHub Container Registry
+      # Passo 4: Faz login no GitHub Container Registry
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Passo 5: Constrói e envia a imagem Docker
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ghcr.io/${{ format('{0}/{1}', 'gabriellyzup', 'container') }}:latest
-          
+
+
 2.2 O que esse pipeline faz?
 ✅ Roda automaticamente ao fazer push no main
 
