@@ -71,8 +71,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ format('{0}/{1}', github.repository_owner, 'container').toLowerCase() }}:latest
-
+          tags: ghcr.io/${{ format('{0}/{1}', 'gabriellyzup', 'container') }}:latest
+          
 2.2 O que esse pipeline faz?
 ✅ Roda automaticamente ao fazer push no main
 
