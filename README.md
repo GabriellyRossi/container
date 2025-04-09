@@ -1,4 +1,14 @@
+
+ainda em evolução, não repara a bagunça
+
+
+
+
 # Containerização e CI/CD de Aplicação Spring Boot
+
+
+
+
 
 ## O que estamos fazendo?
 1. **Containerização**: Empacotar a aplicação Java em uma imagem Docker para rodar em qualquer ambiente.
@@ -166,32 +176,36 @@ Crie o arquivo podman-compose.yml na raiz do projeto. Este arquivo define os ser
 Exemplo de podman-compose.yml
 
 
-version: "3.9"
+Explicação do compose.yaml (Para o README):
+yaml
+Copy
+version: "3.9"  
 
-services:
-  app:
-    image: ghcr.io/gabriellyzup/container:latest
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cadastro_clientes
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    depends_on:
-      - db
-    command: ["--tls-verify=false"]
+services:  
+  app:  
+    image: ghcr.io/gabriellyzup/container:latest  # Imagem do seu app  
+    ports:  
+      - "8080:8080"  # Expõe a porta da aplicação  
+    environment:  
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cadastro_clientes  # URL do banco  
+      SPRING_DATASOURCE_USERNAME: postgres  # Usuário do banco  
+      SPRING_DATASOURCE_PASSWORD: postgres  # Senha do banco  
+    depends_on:  
+      - db  # Garante que o banco suba primeiro  
 
-  db:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: cadastro_clientes
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+  db:  
+    image: postgres:latest  # Imagem oficial do PostgreSQL  
+    environment:  
+      POSTGRES_USER: postgres  # Usuário padrão  
+      POSTGRES_PASSWORD: postgres  # Senha  
+      POSTGRES_DB: cadastro_clientes  # Nome do banco  
+    volumes:  
+      - postgres-data:/var/lib/postgresql/data  # Persistência dos dados  
 
-volumes:
-  postgres-data:
+volumes:  
+  postgres-data:  # Volume para dados do PostgreSQL
+  
+  
 Explicação do Arquivo
 version: Define a versão do Compose. Aqui usamos a versão 3.9.
 services: Define os serviços que serão executados.
@@ -245,3 +259,89 @@ Certifique-se de que o serviço db está em execução.
 Porta em Uso:
 
 Certifique-se de que a porta 8080 não está sendo usada por outro processo.
+
+_______________
+
+# Testando Integração com LocalStack (EC2 e S3)
+
+Este guia fornece um passo a passo detalhado para testar a integração com LocalStack utilizando os serviços EC2 e S3. Certifique-se de que você já tenha o LocalStack e o AWS CLI instalados em sua máquina. O ambiente utilizado é Windows (PowerShell), IntelliJ IDEA, Java 17 e testes realizados via Postman.
+
+---
+
+## Pré-requisitos
+
+1. **LocalStack** instalado e em execução.
+2. **AWS CLI** configurado.
+3. **Java 17** instalado.
+4. **IntelliJ IDEA** configurado com o projeto.
+5. **Postman** instalado para realizar os testes.
+
+---
+
+## Passo 1: Iniciar o LocalStack
+
+1. Abra o terminal PowerShell.
+2. Inicie o LocalStack com o comando:
+   ```powershell
+   localstack start
+Verifique se o LocalStack está em execução:
+
+
+localstack status
+Passo 2: Configurar o AWS CLI para LocalStack
+Configure o AWS CLI para apontar para o LocalStack:
+
+
+
+aws configure
+AWS Access Key ID: test
+AWS Secret Access Key: test
+Default region name: us-east-1
+Default output format: json
+Teste a configuração listando os buckets S3 (deve retornar vazio inicialmente):
+
+
+
+aws --endpoint-url=http://localhost:4566 s3 ls
+Passo 3: Executar a Aplicação
+Abra o projeto no IntelliJ IDEA.
+Certifique-se de que o arquivo application.properties ou .env está configurado corretamente.
+Execute a classe principal ContainerApplication para iniciar a aplicação.
+Passo 4: Testar os Endpoints com Postman
+4.1 Criar um Bucket S3
+Abra o Postman.
+Configure uma nova requisição:
+Método: POST
+URL: http://localhost:8080/aws/s3/buckets/{bucketName}
+Substitua {bucketName} pelo nome do bucket que deseja criar.
+Clique em Send.
+Verifique no terminal do LocalStack se o bucket foi criado:
+
+
+aws --endpoint-url=http://localhost:4566 s3 ls
+4.2 Fazer Upload de um Arquivo para o S3
+No Postman, configure uma nova requisição:
+Método: POST
+URL: http://localhost:8080/aws/s3/upload
+Body:
+Selecione a opção x-www-form-urlencoded.
+Adicione os seguintes campos:
+bucketName: Nome do bucket criado anteriormente.
+key: Nome do arquivo no bucket (exemplo: meuarquivo.txt).
+filePath: Caminho completo do arquivo na sua máquina (exemplo: C:\Users\SeuUsuario\Documents\meuarquivo.txt).
+Clique em Send.
+Verifique no terminal do LocalStack se o arquivo foi enviado:
+
+
+aws --endpoint-url=http://localhost:4566 s3 ls s3://{bucketName}
+4.3 Listar Instâncias EC2
+No Postman, configure uma nova requisição:
+Método: GET
+URL: http://localhost:8080/aws/ec2/instances
+Clique em Send.
+Verifique no console do IntelliJ IDEA a saída com as instâncias listadas.
+Passo 5: Encerrar o LocalStack
+Para encerrar o LocalStack, execute:
+
+
+localstack stop

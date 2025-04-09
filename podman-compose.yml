@@ -11,6 +11,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - db
+      - localstack
     command: ["--tls-verify=false"]
 
   db:
@@ -21,6 +22,17 @@ services:
       POSTGRES_DB: cadastro_clientes
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566" # Porta principal do LocalStack
+    environment:
+      - SERVICES=s3,ec2
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - "./localstack:/var/lib/localstack"
 
 volumes:
   postgres-data:
