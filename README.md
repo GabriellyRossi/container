@@ -1,15 +1,56 @@
 
-# 📦 Sistema de Cadastro de Clientes com Integração AWS
+# 🚀 Projeto de Estudo: API de Cadastro de Clientes com Integração AWS
 
-![Java](https://img.shields.io/badge/Java-17-%23ED8B00?logo=openjdk)
+![Java](https://img.shields.io/badge/Java-17-%23ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.3-%236DB33F?logo=spring)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13-%23336791?logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-24.+-%230DB7ED?logo=docker)
 ![Podman](https://img.shields.io/badge/Podman-4+-%230DB7ED?logo=podman)
-![AWS LocalStack](https://img.shields.io/badge/LocalStack-2.0+-%23FF9900?logo=amazonaws)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13-%23336791?logo=postgresql)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-%232088FF?logo=githubactions)
+![LocalStack](https://img.shields.io/badge/LocalStack-2.+-%23FF9900?logo=amazonaws)
+
+**Objetivo do Projeto**:  
+Desenvolver uma API de estudos e testes práticos para cadastro de clientes, explorando técnicas modernas de desenvolvimento e infraestrutura.
+
+## 🧠 Estudos Realizados
+- **Containerização**: Dockerfile multi-stage e otimização de imagens
+- **Orquestração**: Podman Compose com health checks
+- **CI/CD**: Pipeline automatizado no GitHub Actions
+- **Cloud Local**: Integração com S3 e EC2 via LocalStack
+- **Boas Práticas**: Variáveis de ambiente, segurança básica, logging
+- **Documentação**: README como guia replicável
+
+## 🌟 Funcionalidades-Chave
+```http
+GET /clientes/{id}       # Busca cliente por ID
+POST /aws/s3/upload      # Upload de arquivos para bucket S3
+GET /aws/ec2/instances   # Lista instâncias EC2 (LocalStack)
+```
+
+## 🛠️ Tecnologias Utilizadas
+Área	Tecnologias
+Backend	Java 17, Spring Boot 3, JPA/Hibernate, Lombok
+Banco de Dados	PostgreSQL 13, Flyway (implícito no ddl-auto)
+Infra	Docker, Podman, GitHub Actions
+AWS Local	LocalStack (S3, EC2), AWS SDK v2
+Ferramentas	Maven, Dotenv, SpringDoc OpenAPI
+📌 Por que este projeto é relevante?
+É um case completo que demonstra habilidades em:
+
+🔄 Deploy Containerizado: Do Dockerfile ao Podman Compose
+
+☁️ Integração Cloud: Simulação realista de serviços AWS
+
+⚙️ Automação: Pipeline CI/CD profissional
+
+📊 Gestão de Estado: Persistência de dados com PostgreSQL
+
+🔍 Debugging: Configuração de health checks e logs
+
 
 ## 📋 Estrutura do Projeto
 ```bash
-        projeto/
+        container/
         ├── src/
         │   ├── main/java/com/study/container/
         │   │   ├── config/       # Configurações AWS
@@ -40,12 +81,55 @@
 - 📦 Maven 3.8+
 - ⚡ LocalStack (para testes AWS)
 
+▶️ Como Executar
+bash
+# Clone o repositório
+git clone https://github.com/GabriellyZup/container.git
+
+# Inicie os containers
+podman-compose up --build
+
+# Acesse a API
+curl http://localhost:8080/hello
+
 ### Clone e Build
 ```bash
         git clone https://github.com/GabriellyZup/container.git
         cd container
         mvn clean package
 ```
+## 🐋 Dockerfile - Construção da Imagem
+```dockerfile
+        FROM maven:3.8.6-openjdk-17 AS build
+        WORKDIR /app
+        COPY pom.xml .
+        COPY src ./src
+        RUN mvn clean package -DskipTests
+
+        FROM openjdk:17-jdk-slim
+        WORKDIR /app
+        COPY --from=build /app/target/*.jar app.jar
+        EXPOSE 8080
+        ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+**Explicação do Dockerfile:**
+- **Multi-stage build:**
+- Primeiro estágio (build): Compila o projeto com Maven
+- Segundo estágio: Cria imagem final leve com o JAR
+- **Otimizações:**
+- Usa JDK apenas na fase de compilação
+- Mantém imagem final com ~150MB usando jdk-slim
+- **Boas Práticas:**
+- `-DskipTests`: Ignora testes durante o build da imagem
+- `EXPOSE 8080`: Expõe porta padrão do Spring Boot
+- `WORKDIR`: Define diretório de trabalho organizado
+
+**Para construir a imagem localmente:**
+```bash
+        podman build -t cliente-api .
+```
+
 
 ## 🐳 Podman Compose - Arquivo de Configuração
 ```yaml
@@ -91,7 +175,7 @@
 
 ## Comandos Essenciais
 ```bash
-# Iniciar serviços
+ # Iniciar serviços
         podman-compose up --build
 
 # Ver logs do banco
